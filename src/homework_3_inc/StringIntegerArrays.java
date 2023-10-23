@@ -1,6 +1,4 @@
-package homework_3;
-
-import java.util.Arrays;
+package homework_3_inc;
 
 class StringIntegerArrays {
 

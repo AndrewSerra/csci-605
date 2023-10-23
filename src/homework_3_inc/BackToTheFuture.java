@@ -1,4 +1,4 @@
-package homework_3;
+package homework_3_inc;
 // TODO: INCOMPLETE
 
 // Total 9 guesses per word
