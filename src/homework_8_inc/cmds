@@ -1,0 +1,7 @@
+javac -Xlint:all homework_8_inc/Test.java homework_8_inc/ArrayOperator.java \
+    homework_8_inc/SortedStorage.java homework_8_inc/SortedStorageIterator.java \
+    homework_8_inc/StorageHasBeenModifiedException.java
+
+javac -Xlint:all homework_8_inc/Test3.java homework_8_inc/MyCollections.java \
+    homework_8_inc/MyComparator.java homework_8_inc/MyList.java
+
