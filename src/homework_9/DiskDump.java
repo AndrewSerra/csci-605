@@ -8,7 +8,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * This is a simplified implementation of the dd command
+ * in unix. The tool will copy contents from an input stream of a
+ * file or system.in to either an output file or system.out
  *
+ * @author Andrew Serra
+ * @author Anindhya Kushagra
  */
 public class DiskDump {
 
@@ -17,6 +22,10 @@ public class DiskDump {
     private int bsIncBlockCount = 0;
     private int totalProcessedBytes = 0;
 
+    /**
+     * Creates a DiskDump object and initializes the
+     * options with default values.
+     */
     public DiskDump() {
         options = new HashMap<>() {{
             put("if", "-"); // Uses stdin by default
@@ -27,7 +36,8 @@ public class DiskDump {
     }
 
     /**
-     *
+     * Prints the usage of this program with the order of
+     * arguments and options.
      */
     private static void printHelp() {
         System.out.println(
@@ -35,7 +45,8 @@ public class DiskDump {
     }
 
     /**
-     *
+     * The counts of the total processed bytes, block count, and
+     * the incomplete block counts are printed.
      */
     private void printOutcome() {
         System.out.printf("Total bytes processed: %d\n", totalProcessedBytes);
@@ -44,18 +55,22 @@ public class DiskDump {
     }
 
     /**
+     * Verifies if a value is numeric.
      *
-     * @param value
-     * @return
+     * @param value String value expected to have only digits
+     * @return True if the value is an integer, false if not
      */
     private static boolean isNumericParam(String value) {
         return Pattern.matches("^\\d*$", value);
     }
 
     /**
+     * Breaks down a command line argument and its value using
+     * regex.
      *
-     * @param arg
-     * @return
+     * @param arg Command line argument as a key-value pair
+     * @return A Matcher object containing the groups of with a
+     *         key and value.
      */
     private static Matcher getArgValue(String arg) {
         Pattern p = Pattern.compile(
@@ -64,8 +79,10 @@ public class DiskDump {
     }
 
     /**
+     * Populates the instance variables of the class for the
+     * given command line arguments.
      *
-     * @param args
+     * @param args Command line arguments passed to the program
      */
     private void parseOptArgs(String[] args) {
         int i = 0; // Skip the positional file name
@@ -95,8 +112,11 @@ public class DiskDump {
     }
 
     /**
+     * Depending on if option in the command line arguments,
+     * an BufferedInputStream is returned. It is either based
+     * on System.in or a FileInputStream.
      *
-     * @return
+     * @return InputStream based off of System.in or FileInputStream
      * @throws FileNotFoundException
      */
     private InputStream getInputStream() throws FileNotFoundException {
@@ -109,8 +129,11 @@ public class DiskDump {
     }
 
     /**
+     * Depending on if option in the command line arguments,
+     * an OutputStream is returned. It is either PrintStream or
+     * FileOutputStream.
      *
-     * @return
+     * @return OutputStream based off of System.out or FileOutputStream
      * @throws IOException
      */
     private OutputStream getOutputStream() throws IOException {
@@ -130,8 +153,9 @@ public class DiskDump {
     }
 
     /**
+     * Executes the program for a given file and options.
      *
-     * @param args
+     * @param args Command line arguments passed to the program
      */
     public void run(String[] args) {
         parseOptArgs(args);

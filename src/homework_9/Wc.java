@@ -5,7 +5,12 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 
 /**
+ * This is a class that counts number of words, bytes,
+ * and lines in a given file. Optional arguments allows
+ * respective counts to be printed.
  *
+ * @author Andrew Serra
+ * @author Anindhya Kushagra
  */
 public class Wc {
 
@@ -15,6 +20,10 @@ public class Wc {
     private int charCount = 0;
     private int lineCount = 0;
 
+    /**
+     * Creates a Wc instance with defaults of false to
+     * all the optional arguments.
+     */
     public Wc() {
         options = new HashMap<>() {{
             put("-l", false);
@@ -24,7 +33,9 @@ public class Wc {
     }
 
     /**
-     *
+     * Prints the result counts in the order lines, bytes,
+     * and characters. If the option is marked to be true,
+     * it is appended to the result string.
      */
     private void printResults() {
         StringBuilder sb = new StringBuilder();
@@ -46,15 +57,18 @@ public class Wc {
     }
 
     /**
-     *
+     * Prints the usage of this program with the order of
+     * arguments and options.
      */
     private static void printHelp() {
         System.out.println("Usage: java Wc <filename> [-l] [-c] [-m]");
     }
 
     /**
+     * Populates the instance variables of the class for the
+     * given command line arguments.
      *
-     * @param args
+     * @param args Command line arguments passed to the program
      */
     private void parseOptArgs(String[] args) {
         int i = 0; // Skip the positional file name
@@ -68,7 +82,8 @@ public class Wc {
     }
 
     /**
-     *
+     * Runs until the stream is completed fully and counts the lines,
+     * bytes, and characters, in the stream from a given file.
      */
     private void count() {
         try ( FileInputStream fs = new FileInputStream(fileName); ) {
@@ -94,8 +109,9 @@ public class Wc {
     }
 
     /**
+     * Executes the program for a given file and options.
      *
-     * @param args
+     * @param args Command line arguments passed to the program
      */
     public void run(String[] args) {
             if(args.length == 0) {
