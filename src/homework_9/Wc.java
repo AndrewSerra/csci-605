@@ -17,7 +17,7 @@ public class Wc {
     private String fileName;
     private final HashMap<String, Boolean> options;
     private int byteCount = 0;
-    private int charCount = 0;
+    private int wordCount = 0;
     private int lineCount = 0;
 
     /**
@@ -27,6 +27,7 @@ public class Wc {
     public Wc() {
         options = new HashMap<>() {{
             put("-l", false);
+            put("-w", false);
             put("-c", false);
             put("-m", false);
         }};
@@ -41,14 +42,21 @@ public class Wc {
         StringBuilder sb = new StringBuilder();
 
         if(options.get("-l")) {
-            sb.append(lineCount);
-        } else if(options.get("-c")) {
-            sb.append(charCount);
-        } else if(options.get("-m")) {
-            sb.append(byteCount);
-        } else {
             sb.append("\t").append(lineCount);
-            sb.append("\t").append(charCount);
+        }
+        if(options.get("-w")) {
+            sb.append("\t").append(wordCount);
+        }
+        if(options.get("-c")) {
+            sb.append("\t").append(byteCount);
+        }
+        if(options.get("-m")) {
+            sb.append("\t").append(byteCount);
+        }
+
+        if(sb.length() == 0){
+            sb.append("\t").append(lineCount);
+            sb.append("\t").append(wordCount);
             sb.append("\t").append(byteCount);
         }
 
@@ -61,7 +69,7 @@ public class Wc {
      * arguments and options.
      */
     private static void printHelp() {
-        System.out.println("Usage: java Wc <filename> [-l] [-c] [-m]");
+        System.out.println("Usage: java Wc <filename> [-l] [-w] [-c] [-m]");
     }
 
     /**
@@ -86,16 +94,23 @@ public class Wc {
      * bytes, and characters, in the stream from a given file.
      */
     private void count() {
-        try ( FileInputStream fs = new FileInputStream(fileName); ) {
+        try ( FileInputStream fs = new FileInputStream(fileName) ) {
             int data;
-            byteCount = fs.available();
+            boolean prevIsWs = false;
             // Continue looping if there are more bytes of data left
             while((data = fs.read()) != -1) {
-                if((char)data == '\n') {
+                byteCount++;
+                boolean isLast = (byteCount > 0) && (fs.available() == 0);
+                if((char)data == '\n' || isLast) {
                     lineCount++;
                 }
-                if(((char)data == ' ') || ((char)data == '\n')) {
-                    charCount++;
+
+                if((!prevIsWs) &&
+                        ((char)data == ' ') || ((char)data == '\n') || isLast) {
+                    wordCount++;
+                    prevIsWs = true;
+                } else {
+                    prevIsWs = false;
                 }
             }
         } catch (FileNotFoundException e) {
