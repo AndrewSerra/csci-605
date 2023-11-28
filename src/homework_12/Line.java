@@ -3,22 +3,19 @@ package homework_12;
 import java.util.HashMap;
 import java.util.Objects;
 
-
 /**
- * This class takes command line variables for number of threads
- * and how many times the sequence has to be executed. The sequence
- * consists of threads printing their id number when it is their turn.
- * Repeats until the amount of "soOften" value is reached.
+ * This class simulates firefighters passing a bucket in order
+ * and returning back to the beginning that repeats n times.
  *
  * @author Andrew Serra
  * @author Anindhya Kushagra
  */
-public class SoMany {
-
+public class Line {
     private HashMap<String, Integer> options = null;
     private static final Object o = new Object();
-    private static volatile int order = 0;
+    private static volatile int order = 1;
     private static volatile boolean allowRun = false;
+    private static volatile boolean seqComplete = false;
 
     /**
      * A static runnable class that simulates execution in order
@@ -27,8 +24,32 @@ public class SoMany {
     static class Printer implements Runnable {
 
         int id;
-        public Printer(int _id) {
+        boolean isLast;
+        public Printer(int _id, boolean _isLast) {
             id = _id;
+            isLast = _isLast;
+        }
+
+        private String getFireFighterMessage() {
+            StringBuilder builder = new StringBuilder();
+
+            if (id == 1) {
+                builder.append("Bucket is filled by firefighter ")
+                        .append(id)
+                        .append(".");
+            } else {
+                builder.append("\tbucket is handed to firefighter ")
+                        .append(id)
+                        .append(".");
+                if(isLast) {
+                    builder.append("\n\t\tand firefighter ")
+                            .append(id)
+                            .append(" empties the bucket and\n")
+                            .append("\t\tdrops bucket and firefighter 1 " +
+                                    "catches the bucket.");
+                }
+            }
+            return builder.toString();
         }
 
         @Override
@@ -42,12 +63,16 @@ public class SoMany {
                         }
                         o.notify();
                         if(id == order) {
-                            System.out.println("---> " + id);
+                            System.out.println(getFireFighterMessage());
                             order++;
+
+                            if(isLast) {
+                                seqComplete = true;
+                            }
                         }
                         o.wait();
                     } catch (InterruptedException e) {
-                      break;
+                        break;
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                     }
@@ -67,8 +92,8 @@ public class SoMany {
         }
         options = new HashMap<>() {{
             for(int i = 0; i < 4; i += 2) {
-                if(Objects.equals(args[i], "-nThreads")) {
-                    put("nThreads", Integer.parseInt(args[i+1]));
+                if(Objects.equals(args[i], "-soManyFireFighters")) {
+                    put("soManyFireFighters", Integer.parseInt(args[i+1]));
                 } else if(Objects.equals(args[i], "-soOften")) {
                     put("soOften", Integer.parseInt(args[i+1]));
                 }
@@ -77,7 +102,7 @@ public class SoMany {
 
         if(options.size() != 2) {
             throw new IllegalArgumentException(
-                    "Invalid keys provided. Only -nThreads and -soOften allowed.");
+                    "Invalid keys provided. Only -soManyFireFighters and -soOften allowed.");
         }
     }
 
@@ -88,27 +113,30 @@ public class SoMany {
      */
     public void execute() throws Exception {
 
-        if(!options.containsKey("nThreads") || !options.containsKey("soOften")) {
+        if(!options.containsKey("soManyFireFighters") || !options.containsKey("soOften")) {
             throw new Exception("Incomplete arguments.");
         }
 
-        Thread[] threads = new Thread[options.get("nThreads")];
+        Thread[] threads = new Thread[options.get("soManyFireFighters")];
 
         for(int i=0; i < threads.length; i++) {
-            threads[i] = new Thread(new Printer(i));
+            threads[i] = new Thread(
+                    new Line.Printer(i+1, i == (threads.length - 1)));
             threads[i].start();
         }
         int count = 0;
 
         while(count < options.get("soOften")) {
-            System.out.println("Running round " + (count + 1));
             synchronized (o) {
                 o.notify();
                 allowRun = true;
-                o.wait();
-                allowRun = false;
-                count++;
-                order = 0;
+                if(seqComplete) {
+                    o.wait();
+                    allowRun = false;
+                    count++;
+                    order = 1;
+                    seqComplete = false;
+                }
             }
         }
 
@@ -116,8 +144,8 @@ public class SoMany {
     }
 
     public static void main(String[] args) throws Exception {
-        SoMany writer = new SoMany();
-        writer.parseArgs(args);
-        writer.execute();
+        Line lineTransfer = new Line();
+        lineTransfer.parseArgs(args);
+        lineTransfer.execute();
     }
 }
